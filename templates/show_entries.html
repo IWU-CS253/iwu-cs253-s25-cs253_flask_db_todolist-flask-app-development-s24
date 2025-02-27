@@ -18,7 +18,21 @@
     </dl>
   </form>
   <ul class="entries">
-
+  <form action="{{ url_for('show_entries') }}" method="get">
+    <label>
+        <input type="radio" name="filter" value="incomplete">
+        Incomplete
+    </label>
+    <label>
+        <input type="radio" name="filter" value="complete">
+        Complete
+    </label>
+    <label>
+        <input type="radio" name="filter" value="oldest">
+        Oldest
+    </label>
+    <button type="submit">Filter by</button>
+  </form>
   {% for entry in entries %}
       <li><h2>
         <form action="{{ url_for('new_complete') }}" method="post" id="new-complete-{{ entry.id }}">
@@ -26,11 +40,12 @@
             <input type="checkbox" name="complete" onclick="complete_checkbox('new-complete-{{ entry.id }}')" {% if entry.complete == 'complete' %}checked{% endif %}>
         </form>
 
-
           {{ entry.title }} </h2>
           <h4>{{ entry.complete }}</h4>
-          {{ entry.text|safe }}
-
+          <h5>Last Updated {{ entry.timestamp }}</h5>
+        <div>
+          <p>{{ entry.text|safe }}</p>
+        </div>
 
         <form action="{{ url_for('new_redir') }}" method="get" class="new_redir">
             <button value="update" type="submit">Update</button>
