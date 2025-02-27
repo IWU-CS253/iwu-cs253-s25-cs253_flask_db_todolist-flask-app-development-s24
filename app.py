@@ -65,10 +65,21 @@ def close_db(error):
         g.sqlite_db.close()
 
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def show_entries():
+    filtered = request.args.get('filter', None)
     db = get_db()
-    cur = db.execute('select title, text, timestamp, id, complete from entries order by id desc')
+    ALLOWED_SORT_FIELDS = ['complete', 'incomplete', 'oldest']
+
+    if filtered in ALLOWED_SORT_FIELDS:
+        if filtered == 'complete':
+            cur = db.execute('select title, text, timestamp, id, complete from entries WHERE complete != "incomplete"')
+        elif filtered == 'incomplete':
+            cur = db.execute('select title, text, timestamp, id, complete from entries WHERE complete = "incomplete"')
+        else:
+            cur= db.execute('select title, text, timestamp, id, complete from entries ORDER BY timestamp ASC')
+    else:
+        cur = db.execute('select title, text, timestamp, id, complete from entries order by timestamp DESC')
     entries = cur.fetchall()
     return render_template('show_entries.html', entries=entries)
 
