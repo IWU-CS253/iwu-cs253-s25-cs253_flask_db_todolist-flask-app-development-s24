@@ -13,7 +13,7 @@
 import os
 from sqlite3 import dbapi2 as sqlite3
 from flask import Flask, request, g, redirect, url_for, render_template, flash
-
+from datetime import datetime
 
 # create our little application :)
 app = Flask(__name__)
@@ -68,7 +68,7 @@ def close_db(error):
 @app.route('/')
 def show_entries():
     db = get_db()
-    cur = db.execute('select title, text, id, complete from entries order by id desc')
+    cur = db.execute('select title, text, timestamp, id, complete from entries order by id desc')
     entries = cur.fetchall()
     return render_template('show_entries.html', entries=entries)
 
@@ -76,8 +76,11 @@ def show_entries():
 @app.route('/add', methods=['POST'])
 def add_entry():
     db = get_db()
-    db.execute("insert into entries (title, text, complete) values (?, ?, 'incomplete')"
-               [request.form['title'], request.form['text']])
+    timestamp = datetime.now()
+    timestamp = timestamp.strftime("%I:%M %p")
+
+    db.execute("insert into entries (title, text, timestamp, complete) values (?, ?, ?, 'incomplete')",
+               [request.form['title'], request.form['text'], timestamp])
     db.commit()
     flash('New entry was successfully posted')
     return redirect(url_for('show_entries'))
@@ -85,8 +88,10 @@ def add_entry():
 @app.route('/new', methods=['POST'])
 def new_entry():
     db = get_db()
-    db.execute("update entries set title = ?, text = ?  where id = ? ",
-               [request.form['title'], request.form['text'], request.form.get('id')])
+    timestamp = datetime.now()
+    timestamp = timestamp.strftime("%I:%M %p")
+    db.execute("update entries set title = ?, text = ?, timestamp = ?  where id = ? ",
+               [request.form['title'], request.form['text'], timestamp, request.form.get('id')])
     db.commit()
     flash('Entry was successfully updated')
     return redirect(url_for('show_entries'))

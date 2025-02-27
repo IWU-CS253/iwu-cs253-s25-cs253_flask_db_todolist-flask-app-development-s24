@@ -29,8 +29,10 @@
 
           {{ entry.title }} </h2>
           <h4>{{ entry.complete }}</h4>
-          {{ entry.text|safe }}
-
+          <h5>Submitted {{ entry.timestamp }}</h5>
+        <div>
+          <p>{{ entry.text|safe }}</p>
+        </div>
 
         <form action="{{ url_for('new_redir') }}" method="get" class="new_redir">
             <button value="update" type="submit">Update</button>
