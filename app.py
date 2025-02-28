@@ -76,7 +76,7 @@ def show_entries():
 @app.route('/add', methods=['POST'])
 def add_entry():
     db = get_db()
-    db.execute("insert into entries (title, text, complete) values (?, ?, 'incomplete')"
+    db.execute("insert into entries (title, text, complete) values (?, ?, 'incomplete')",
                [request.form['title'], request.form['text']])
     db.commit()
     flash('New entry was successfully posted')
@@ -102,8 +102,12 @@ def new_redir():
 def new_complete():
     db = get_db()
     complete_val = request.form.get('complete')
-    db.execute("update entries set complete='complete' where id = ?",
+    if complete_val == None:
+        db.execute("update entries set complete='incomplete' where id = ?",
                [request.form.get('id')])
+    else:
+        db.excecute("update entries set complete= 'complete' where id = ?",
+                    [request.form.get('id')])
     db.commit()
     flash('The entry was successfully completed!')
     return redirect(url_for('show_entries'))
